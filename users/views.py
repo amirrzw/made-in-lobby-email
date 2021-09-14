@@ -7,7 +7,7 @@ from .serializers import UserSerializer, ChangePasswordSerializer
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([AllowAny, ])
 def create_user(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
