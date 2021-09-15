@@ -1,6 +1,6 @@
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 
 from mails.models import Mail
 from mails.serializers import MailReadSerializer, MailSerializer
@@ -35,4 +35,16 @@ class DeleteMail(generics.DestroyAPIView):
     queryset = Mail.objects.all()
     serializer_class = MailReadSerializer
     permission_classes = (IsAuthor,)
+
+
+@api_view(['GET'], )
+@permission_classes([IsAuthor, ])
+def get_replies(request, pk):
+    try:
+        replies = Mail.objects.get(pk=pk).replies
+    except:
+        return Response({"message": "mail with this id doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
+    serializer = MailReadSerializer(replies, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 
