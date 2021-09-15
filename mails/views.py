@@ -50,3 +50,5 @@ def get_replies(request, pk):
         return Response({"message": "mail with this id doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
     serializer = MailReadSerializer(replies, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+

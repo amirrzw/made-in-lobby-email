@@ -1,15 +1,24 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
+import re
+
+from users.models import EmailUser
 
 
-class UserSerializer(serializers.ModelSerializer):
+class EmailUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
-        model = User
-        fields = ['id', 'username', 'password', 'email']
+        model = EmailUser
+        fields = ['id', 'username', 'password', 'email_address', 'contacts']
+
+    def validate_email_address(self, value):
+        if re.match("^[\w\.]+$", value):
+            return value
+        raise serializers.ValidationError("invalid email address")
 
     def create(self, validated_data):
+        validated_data['email_address'] += '@amirrzw.com'
         obj = super().create(validated_data)
         obj.set_password(validated_data['password'])
         obj.save()

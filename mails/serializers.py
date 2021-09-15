@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from users.serializers import UserSerializer
+from users.serializers import EmailUserSerializer
 from .models import Mail
 
 
@@ -24,8 +24,8 @@ class MailSerializer(serializers.ModelSerializer):
 
 
 class MailReadSerializer(serializers.ModelSerializer):
-    sender = UserSerializer()
-    receiver = UserSerializer()
+    sender = EmailUserSerializer()
+    receiver = EmailUserSerializer()
 
     class Meta:
         model = Mail
