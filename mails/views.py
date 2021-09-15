@@ -4,13 +4,15 @@ from rest_framework.decorators import api_view, permission_classes
 
 from mails.models import Mail
 from mails.serializers import MailReadSerializer, MailSerializer
-from .permissions import IsAuthor
+from .permissions import IsAuthor, IsAuthorOrReceiver
 
 
 class CreateAndGetPosts(generics.ListCreateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
     def get_queryset(self):
-        return Mail.objects.filter(receiver=self.request.user)
-        # return self.request.user.inbox
+        # return Mail.objects.filter(receiver=self.request.user)
+        return self.request.user.inbox
 
     def get_serializer_class(self):
         if self.request in permissions.SAFE_METHODS:
@@ -21,15 +23,17 @@ class CreateAndGetPosts(generics.ListCreateAPIView):
 
 @api_view(['GET', ])
 def get_sent_mails(request):
-    # mails = request.user.mail_set
-    mails = Mail.objects.filter(sender=request.user)
+    mails = request.user.sent_mails
+    # mails = Mail.objects.filter(sender=request.user)
     serializer = MailReadSerializer(mails, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class MailDetail(generics.RetrieveAPIView):
     queryset = Mail.objects.all()
     serializer_class = MailReadSerializer
-    permission_classes = (IsAuthor, )
+    permission_classes = (IsAuthorOrReceiver,)
+
 
 class DeleteMail(generics.DestroyAPIView):
     queryset = Mail.objects.all()
@@ -38,7 +42,7 @@ class DeleteMail(generics.DestroyAPIView):
 
 
 @api_view(['GET'], )
-@permission_classes([IsAuthor, ])
+@permission_classes([IsAuthorOrReceiver, ])
 def get_replies(request, pk):
     try:
         replies = Mail.objects.get(pk=pk).replies
@@ -46,5 +50,3 @@ def get_replies(request, pk):
         return Response({"message": "mail with this id doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
     serializer = MailReadSerializer(replies, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
-
-
