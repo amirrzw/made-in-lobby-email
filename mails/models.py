@@ -7,4 +7,5 @@ class Mail(models.Model):
     subject = models.CharField(max_length=50)
     body = models.TextField()
     sent_at = models.DateTimeField(auto_now_add=True)
+    reply_to = models.ForeignKey('self', on_delete=models.DO_NOTHING, null=True, blank=True, related_name='replies')
     # image ...

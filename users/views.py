@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.models import Token
 
 from .serializers import UserSerializer, ChangePasswordSerializer
 
@@ -31,6 +32,10 @@ class ChangePassword(generics.UpdateAPIView):
             if user.check_password(serializer.data.get('old_password')):
                 user.set_password(serializer.data.get('new_password'))
                 user.save()
+                token, created = Token.objects.get_or_create(user=user)
+                token.delete()
+                token.created = Token.objects.create(user=user)
+                token.save()
                 return Response({"message": "password changed successfully"}, status=status.HTTP_200_OK)
             return Response({"message": "old_password is wrong"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
