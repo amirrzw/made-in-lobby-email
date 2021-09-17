@@ -1,9 +1,9 @@
-from django.contrib.auth.models import User
+from users.models import EmailUser
 from django.db import models
 
 class Mail(models.Model):
-    sender = models.ForeignKey(User, related_name='sent_mails', on_delete=models.CASCADE)
-    receiver = models.ForeignKey(User, related_name='inbox', on_delete=models.CASCADE)
+    sender = models.ForeignKey(EmailUser, related_name='sent_mails', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(EmailUser, related_name='inbox', on_delete=models.CASCADE)
     subject = models.CharField(max_length=50)
     body = models.TextField()
     sent_at = models.DateTimeField(auto_now_add=True)

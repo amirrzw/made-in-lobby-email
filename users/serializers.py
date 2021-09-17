@@ -24,6 +24,15 @@ class EmailUserSerializer(serializers.ModelSerializer):
         obj.save()
         return obj
 
+
+class EmailUserReadSerializer(serializers.ModelSerializer):
+    contacts = EmailUserSerializer()
+
+    class Meta:
+        model = EmailUser
+        fields = ['id', 'username', 'password', 'email_address', 'contacts']
+
+
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)

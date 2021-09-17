@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 
 from .models import EmailUser
-from .serializers import EmailUserSerializer, ChangePasswordSerializer
+from .serializers import EmailUserSerializer, ChangePasswordSerializer, EmailUserReadSerializer
 
 
 @api_view(['POST'])
@@ -47,3 +47,13 @@ def get(request):
     users = EmailUser.objects.all()
     serializer = EmailUserSerializer(users, many=True)
     return Response(serializer.data)
+
+class GetContacts(generics.ListAPIView):
+    def get_queryset(self):
+        return self.request.user.contacts
+
+    def get_serializer_class(self):
+        if self.request in permissions.SAFE_METHODS:
+            return EmailUserReadSerializer
+        else:
+            return EmailUserSerializer
