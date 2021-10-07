@@ -9,6 +9,7 @@ class MailSerializer(serializers.ModelSerializer):
         model = Mail
         fields = '__all__'
         read_only_fields = ['sender', 'sent_at', ]
+        
 
     def validate_receiver(self, value):
         if self.context.get('request').user == value:

@@ -10,7 +10,7 @@ class EmailUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EmailUser
-        fields = ['id', 'username', 'password', 'email_address', 'contacts']
+        fields = ['id', 'first_name', 'last_name', 'password', 'email_address']
 
     def validate_email_address(self, value):
         if re.match("^[\w\.]+$", value):
@@ -25,14 +25,11 @@ class EmailUserSerializer(serializers.ModelSerializer):
         return obj
 
 
-class EmailUserReadSerializer(serializers.ModelSerializer):
-    contacts = EmailUserSerializer()
-
-    class Meta:
-        model = EmailUser
-        fields = ['id', 'username', 'password', 'email_address', 'contacts']
-
-
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
+
+
+class GetTokenSerializer(serializers.Serializer):
+    email_address = serializers.CharField(required=True)
+    password = serializers.CharField()

@@ -41,7 +41,6 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
-    contacts = models.ManyToManyField('self')
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -59,3 +58,8 @@ class EmailUser(AbstractBaseUser, PermissionsMixin):
 
     def has_module_perms(self, app_label):
         return True
+
+
+class Contact(models.Model):
+    owner = models.ForeignKey(EmailUser, related_name='contacts', on_delete=models.CASCADE)
+    contact = models.ForeignKey(EmailUser, on_delete=models.CASCADE)

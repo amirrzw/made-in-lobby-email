@@ -1,11 +1,12 @@
+from django.db.models import QuerySet
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 
-from .models import EmailUser
-from .serializers import EmailUserSerializer, ChangePasswordSerializer, EmailUserReadSerializer
+from .models import EmailUser, Contact
+from .serializers import EmailUserSerializer, ChangePasswordSerializer
 
 
 @api_view(['POST'])
@@ -20,7 +21,7 @@ def create_user(request):
 
 class ChangePassword(generics.UpdateAPIView):
     serializer_class = ChangePasswordSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_object(self):
         return self.request.user
@@ -36,24 +37,32 @@ class ChangePassword(generics.UpdateAPIView):
                 token, created = Token.objects.get_or_create(user=user)
                 token.delete()
                 token.created = Token.objects.create(user=user)
-                token.save()
                 return Response({"message": "password changed successfully"}, status=status.HTTP_200_OK)
             return Response({"message": "old_password is wrong"}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET', ])
-@permission_classes([AllowAny, ])
-def get(request):
-    users = EmailUser.objects.all()
-    serializer = EmailUserSerializer(users, many=True)
-    return Response(serializer.data)
 
 class GetContacts(generics.ListAPIView):
     def get_queryset(self):
         return self.request.user.contacts
 
     def get_serializer_class(self):
-        if self.request in permissions.SAFE_METHODS:
-            return EmailUserReadSerializer
-        else:
-            return EmailUserSerializer
+        return EmailUserSerializer
+
+
+@api_view(['POST', ])
+def add_contact(request, pk):
+    try:
+        user = EmailUser.objects.get(pk=pk)
+    except:
+        return Response({"message": "user with this id doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
+    contact = Contact.objects.create(owner=request.user, contact=user)
+    contact.save()
+    return Response({"message": "contact added successfully"}, status=status.HTTP_200_OK)
+
+
+class GetContacts(generics.ListAPIView):
+    def get_queryset(self):
+        return EmailUser.objects.filter(contact__owner=self.request.user)
+
+    serializer_class = EmailUserSerializer

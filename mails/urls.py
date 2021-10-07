@@ -3,7 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    path('get-post-mail', views.CreateAndGetPosts.as_view()),
+    path('get-send-mails', views.CreateAndGetPosts.as_view()),
     path('get-sent-mails', views.get_sent_mails),
     path('get-replies/<int:pk>', views.get_replies),
     path('mail-detail/<int:pk>', views.MailDetail.as_view()),
